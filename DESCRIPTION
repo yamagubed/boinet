@@ -1,0 +1,19 @@
+Package: boinet
+Version: 0.0.1
+Title: boinet: Conduct Simulation Study of Bayesian Optimal Interval Design with BOIN-ET Family
+Authors@R: 
+    person(given  = "Yusuke",
+           family = "Yamaguchi",
+           role   = c("aut","cre"),
+           email  = "yusuke-yamaguchi@astellas.com")
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Imports:
+    Iso,
+    mfp
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
