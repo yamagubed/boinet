@@ -19,7 +19,10 @@
 #' @param alpha.E1 Probability that efficacy event occurs in the late half of assessment window (default: 0.5)
 #' @param tau.T Assessment period for toxicity (days) (default: 30)
 #' @param tau.E Assessment period for efficacy (days) (default: 45)
+#' @param te.corr Correlation between toxicity and efficacy (default: 0.2)
+#' @param gen.event.time Methods to generate toxicity and efficacy data (default: "weibull")
 #' @param accrual Accrual rate (days) (default: 10)
+#' @param gen.enroll.time Methods to generate enrollment time (default: "uniform")
 #' @param stopping.prob.T Stopping probability for toxicity (default: 0.95)
 #' @param stopping.prob.E Stopping probability for efficacy (default: 0.95)
 #' @param estpt.method Methods to estimate efficacy probability
@@ -31,10 +34,20 @@
 #' @param n.sim Number of simulated trial (default: 1000)
 #' @param seed.sim Seed for random number generator (default: 66)
 #' @return Summary of simulation study results
+#' @references
+#' Kentaro Takeda, Yusuke Yamaguchi, Masataka Taguri and Satoshi Morita.
+#' TITE-gBOIN-ET: Time-to-event generalized Bayesian optimal interval design to
+#' accelerate dose-finding accounting for ordinal graded efficacy and toxicity
+#' outcomes. submitted.
+#'
+#' Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
+#' Optimal biological dose selection in dose-finding trials with
+#' model-assisted designs based on efficacy and toxicity: a simulation study.
+#' submitted.
 #' @examples
 #' tite.gboinet(estpt.method="obs.prob",obd.method="max.effprob");
-#' @import Iso
-#' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rweibull
+#' @import Iso copula
+#' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rexp
 #' @export
 
 
@@ -62,7 +75,10 @@ tite.gboinet <- function(
                  alpha.E1        = 0.5,
                  tau.T           = 30,
                  tau.E           = 45,
+                 te.corr         = 0.2,
+                 gen.event.time  = "weibull",
                  accrual         = 10,
+                 gen.enroll.time = "uniform",
                  stopping.prob.T = 0.95,
                  stopping.prob.E = 0.95,
                  estpt.method    = c("multi.iso","fp.logistic","obs.prob"),
@@ -74,6 +90,26 @@ tite.gboinet <- function(
                  n.sim           = 1000,
                  seed.sim        = 66)
 {
+  if(ncol(toxprob)!=n.dose){
+    stop("Number of dose must be the same as the length of true toxicity probability.")
+
+  }else if(ncol(effprob)!=n.dose){
+    stop("Number of dose must be the same as the length of true efficacy probability.")
+
+  }else if(nrow(toxprob)!=length(sev.weight)){
+    stop("Number of toxicity category must be the same as the length of weight.")
+
+  }else if(nrow(effprob)!=length(res.weight)){
+    stop("Number of effcacy category must be the same as the length of weight.")
+
+  }else if(!((phi1<phi)&(phi<phi2))){
+    stop("Design parameters must satisfy a condition of phi1 < phi < phi2.")
+
+  }else if(!(delta1<delta)){
+    stop("Design parameters must satisfy a condition of delta1 < delta.")
+
+  }else{
+
   dosen <- 1:n.dose
   dose  <- paste("Dose",dosen,sep="")
 
@@ -104,6 +140,42 @@ tite.gboinet <- function(
   alpha.E1 <- alpha.E1
   alpha.E2 <- 0.5
 
+  efftoxp <- list(toxp=toxp,effp=effp)
+
+  ncop    <- copula::normalCopula(te.corr,dim=2,dispstr="ex")
+  mv.ncop <- NULL
+
+  if(gen.event.time=="weibull"){
+
+    for(i in 1:n.dose){
+      psi.T    <- sum(efftoxp$toxp[-1,i])
+      zetta.T1 <- log(log(1-psi.T)/log(1-psi.T+alpha.T1*psi.T))/log(1/(1-alpha.T2))
+      zetta.T2 <- tau.T/(-log(1-psi.T))^(1/zetta.T1)
+
+      psi.E    <- sum(efftoxp$effp[-1,i])
+      zetta.E1 <- log(log(1-psi.E)/log(1-psi.E+alpha.E1*psi.E))/log(1/(1-alpha.E2))
+      zetta.E2 <- tau.E/(-log(1-psi.E))^(1/zetta.E1)
+
+      mv.ncop <- append(mv.ncop,copula::mvdc(copula       = ncop,
+                                             margins      = c("weibull","weibull"),
+                                             paramMargins = list(list(shape=zetta.T1,scale=zetta.T2),
+                                                                 list(shape=zetta.E1,scale=zetta.E2))))
+    }
+
+  }else if(gen.event.time=="uniform"){
+
+    for(i in 1:n.dose){
+      psi.T <- sum(efftoxp$toxp[-1,i])
+      psi.E <- sum(efftoxp$effp[-1,i])
+
+      mv.ncop <- append(mv.ncop,copula::mvdc(copula       = ncop,
+                                             margins      = c("unif","unif"),
+                                             paramMargins = list(list(min=0,max=tau.T*(1/psi.T)),
+                                                                 list(min=0,max=tau.E*(1/psi.E)))))
+    }
+
+  }
+
   data.obs.n <- array(0,dim=c(n.sim,n.dose))
   data.dur   <- array(0,dim=c(n.sim))
 
@@ -112,8 +184,6 @@ tite.gboinet <- function(
   set.seed(seed.sim)
 
   for(ss in 1:n.sim){
-
-    efftoxp <- list(toxp=toxp,effp=effp)
 
     obs.n     <- numeric(n.dose)
     obs.tox   <- numeric(n.dose)
@@ -137,29 +207,31 @@ tite.gboinet <- function(
         if(j==1){
           t.enter[j] <- t.decision
         }else{
-          t.enter[j] <- t.enter[j-1]+runif(1,0,2*accrual)
+          if(gen.enroll.time=="uniform"){
+            t.enter[j] <- t.enter[j-1]+runif(1,0,2*accrual)
+          }else if(gen.enroll.time=="exponential"){
+            t.enter[j] <- t.enter[j-1]+rexp(1,1/accrual)
+          }
       }}
 
       if(i==nesc){
         t.decision <- t.enter[length(t.enter)]+max(tau.T,tau.E)
       }else{
-        t.decision <- t.enter[length(t.enter)]+runif(1,0,2*accrual)
+        if(gen.enroll.time=="uniform"){
+          t.decision <- t.enter[length(t.enter)]+runif(1,0,2*accrual)
+        }else if(gen.enroll.time=="exponential"){
+          t.decision <- t.enter[length(t.enter)]+rexp(1,1/accrual)
+        }
       }
 
-      psi.T    <- sum(efftoxp$toxp[-1,dlab])
-      zetta.T1 <- log(log(1-psi.T)/log(1-psi.T+alpha.T1*psi.T))/log(1/(1-alpha.T2))
-      zetta.T2 <- tau.T/(-log(1-psi.T))^(1/zetta.T1)
-      time.tox <- rweibull(ncoh,shape=zetta.T1,scale=zetta.T2)
-      event.T  <- as.numeric(time.tox<=tau.T)
+      time.te <- copula::rMvdc(ncoh,mv.ncop[[curdose]])
+
+      event.T  <- as.numeric(time.te[,1]<=tau.T)
       grade    <- event.T*((1:ncat.T)%*%rmultinom(ncat.T,1,efftoxp$toxp[-1,dlab]))+1
       ETS      <- apply(grade,2,function(x){return(sev.weight[x])})
       nETS     <- ETS/max(sev.weight)
 
-      psi.E    <- sum(efftoxp$effp[-1,dlab])
-      zetta.E1 <- log(log(1-psi.E)/log(1-psi.E+alpha.E1*psi.E))/log(1/(1-alpha.E2))
-      zetta.E2 <- tau.E/(-log(1-psi.E))^(1/zetta.E1)
-      time.eff <- rweibull(ncoh,shape=zetta.E1,scale=zetta.E2)
-      event.E  <- as.numeric(time.eff<=tau.E)
+      event.E  <- as.numeric(time.te[,2]<=tau.E)
       response <- event.E*((1:ncat.E)%*%rmultinom(ncat.E,1,efftoxp$effp[-1,dlab]))+1
       EES      <- apply(response,2,function(x){return(res.weight[x])})
       nEES     <- EES/max(res.weight)
@@ -167,9 +239,9 @@ tite.gboinet <- function(
       tite.df <- rbind(tite.df,
                        data.frame(dose   = curdose,
                                   enter  = t.enter,
-                                  endtox = t.enter+apply(as.matrix(1:ncoh),1,function(x){min(time.tox[x],tau.T)}),
+                                  endtox = t.enter+apply(as.matrix(1:ncoh),1,function(x){min(time.te[x,1],tau.T)}),
                                   nets   = nETS,
-                                  endeff = t.enter+apply(as.matrix(1:ncoh),1,function(x){min(time.eff[x],tau.E)}),
+                                  endeff = t.enter+apply(as.matrix(1:ncoh),1,function(x){min(time.te[x,2],tau.E)}),
                                   nees   = nEES))
 
       tite.curdose <- tite.df[tite.df$dose==curdose,]
@@ -369,6 +441,9 @@ tite.gboinet <- function(
   dimnames(effprob)   <- list(paste("Eff.cat",1:(ncat.E+1),sep=""),dose)
   names(phi)          <- "Target toxicity prob."
   names(delta)        <- "Target efficacy prob."
+  names(lambda1)      <- "Lower toxicity boundary"
+  names(lambda2)      <- "Upper toxicity boundary"
+  names(eta1)         <- "Lower efficacy boundary"
   names(tau.T)        <- "Tox. assessment window (days)"
   names(tau.E)        <- "Eff. assessment window (days)"
   names(accrual)      <- "Accrual rate (days)"
@@ -383,6 +458,9 @@ tite.gboinet <- function(
                  nEES         = t.nees,
                  phi          = phi,
                  delta        = delta,
+                 lambda1      = lambda1,
+                 lambda2      = lambda2,
+                 eta1         = eta1,
                  tau.T        = tau.T,
                  tau.E        = tau.E,
                  accrual      = accrual,
@@ -397,7 +475,8 @@ tite.gboinet <- function(
 
   class(result) <- "tite.gboinet"
   result
-}
+
+}}
 
 
 

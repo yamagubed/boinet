@@ -2,67 +2,142 @@
 #' Simulation study of BOIN-ET design
 #'
 #' Simulation study is conducted for BOIN-ET design.
-#' @param n.dose Number of dose (default: 6)
-#' @param start.dose Starting dose (default: 1)
-#' @param size.cohort Cohort size (default: 3)
-#' @param n.cohort Number of cohort (default: 12)
-#' @param toxprob True toxicity probability (default: c(0.01,0.03,0.06,0.12,0.18,0.30))
-#' @param effprob True efficacy probability (default: c(0.06,0.08,0.15,0.25,0.40,0.80))
-#' @param phi Target toxicity probability (default: 0.33)
-#' @param phi1 Lower bound of toxicity probability (default: 0.033)
-#' @param phi2 Upper bound of toxicity probability (default: 0.462)
-#' @param delta Target efficacy probability (default: 0.70)
-#' @param delta1 Lower bound of efficacy probability (default: 0.42)
-#' @param alpha.T1 Probability that toxicity event occurs in the late half of assessment window (default: 0.5)
-#' @param alpha.E1 Probability that efficacy event occurs in the late half of assessment window (default: 0.5)
-#' @param tau.T Assessment period for toxicity (days) (default: 30)
-#' @param tau.E Assessment period for efficacy (days) (default: 45)
-#' @param accrual Accrual rate (days) (default: 10)
-#' @param stopping.prob.T Stopping probability for toxicity (default: 0.95)
-#' @param stopping.prob.E Stopping probability for efficacy (default: 0.95)
-#' @param estpt.method Methods to estimate efficacy probability
-#' @param obd.method Methods to select OBD
-#' @param w1 Weight for toxicity-efficacy trade-off (default: 0.33)
-#' @param w2 Weight for penalty imposed on toxic doses (default: 1.09)
-#' @param psi00 Score for toxicity=no and efficacy=no (default: 40)
-#' @param psi11 Score for toxicity=yes and efficacy=yes (default: 60)
-#' @param n.sim Number of simulated trial (default: 1000)
-#' @param seed.sim Seed for random number generator (default: 66)
+#' @usage
+#' boinet(
+#'   n.dose, start.dose, size.cohort, n.cohort,
+#'   toxprob, effprob,
+#'   phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+#'   alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
+#'   te.corr=0.2, gen.event.time="weibull",
+#'   accrual, gen.enroll.time="uniform",
+#'   stopping.prob.T=0.95, stopping.prob.E=0.95,
+#'   estpt.method, obd.method,
+#'   w1= 0.33, w2=1.09, psi00=40, psi11=60, n.sim=1000, seed.sim=66)
+#' @param n.dose Number of dose.
+#' @param start.dose Starting dose.
+#' @param size.cohort Cohort size.
+#' @param n.cohort Number of cohort.
+#' @param toxprob Vector of true toxicity probability.
+#' @param effprob Vector of true efficacy probability.
+#' @param phi Target toxicity probability.
+#' @param phi1 Highest toxicity probability that is deemed sub-therapeutic such
+#' that dose-escalation should be pursued. The default value is
+#' \code{phi1=phi*0.1}.
+#' @param phi2 Lowest toxicity probability that is deemed overly toxic such that
+#' dose de-escalation is needed. The default value is \code{phi2=phi*1.4}.
+#' @param delta Target efficacy probability.
+#' @param delta1 Minimum probability deemed efficacious such that the dose
+#' levels with less than delta1 are considered sub-therapeutic.
+#' The default value is \code{delta1=delta*0.6}.
+#' @param alpha.T1 Probability that toxicity event occurs in the late half of
+#' toxicity assessment window. The default value is \code{alpha.T1=0.5}.
+#' @param alpha.E1 Probability that efficacy event occurs in the late half of
+#' assessment window. The default value is \code{alpha.E1=0.5}.
+#' @param tau.T Toxicity assessment windows (days).
+#' @param tau.E Efficacy assessment windows (days).
+#' @param te.corr Correlation between toxicity and efficacy probability. The
+#' default value is \code{te.corr=0.2}.
+#' @param gen.event.time Method to generate the time to first toxicity and
+#' efficacy outcome. Weibull distribution is used if \code{"weibull"}.
+#' Uniform distribution is used if \code{"uniform"}.
+#' The default value is \code{weibull}.
+#' @param accrual Accrual rate (days) (average number of days necessary to
+#' enroll one patient).
+#' @param gen.enroll.time Method to generate enrollment time. Uniform
+#' distribution is used if \code{"uniform"}. Exponential distribution is used if
+#' \code{"exponential"}. The default value is \code{"uniform"}.
+#' @param stopping.prob.T Early study termination criteria for toxicity,
+#' which is a value between 0 and 1. If the posterior probability that toxicity
+#' outcome is less than the target toxicity probability (phi) is larger than
+#' this criteria, the dose levels are eliminated from the study. The default
+#' value is \code{stopping.prob.T=0.95}.
+#' @param stopping.prob.E Early study termination criteria for efficacy,
+#' which is a value between 0 and 1. If the posterior probability that efficacy
+#' outcome is less than the minimum efficacy probability (delta1) is larger
+#' then this criteria, the dose levels are eliminated from the study.
+#' The default value is \code{stopping.prob.E=0.95}.
+#' @param estpt.method Method to estimate the efficacy probability. Fractional
+#' polynomial logistic regression is used if \code{"fp.logistic"}. Model
+#' averaging of multiple unimodal isotopic regression is used if
+#' \code{"multi.iso"}. Observed efficacy probability is used if
+#' \code{"obs.prob"}.
+#' @param obd.method Method to select the OBD. Utility defined by weighted
+#' function is used if \code{"utility.weighted"}. Utility defined by truncated
+#' linear function is used if \code{"utility.truncated.linear"}. Utility defined
+#' by scoring is used if \code{"utility.scoring"}. Highest estimated efficacy
+#' probability is used if \code{"max.effprob"}.
+#' @param w1 Weight for toxicity-efficacy trade-off in utility defined by
+#' weighted function, which needs \code{obd.method="utility.weighted"}.The
+#' default value is \code{w1=0.33}.
+#' @param w2 Weight for penalty imposed on toxic doses in utility defined by
+#' weighted function, which needs \code{obd.method="utility.weighted"}. The
+#' default value is \code{w2=1.09}.
+#' @param psi00 Score for toxicity=no and efficacy=no in utility defined by
+#' scoring, which needs \code{obd.method="utility.scoring"}. The default value
+#' is \code{psi00=40}.
+#' @param psi11 Score for toxicity=yes and efficacy=yes in utility defined by
+#' scoring, which needs \code{obd.method="utility.scoring"}. The default value
+#' is \code{psi11=60}.
+#' @param n.sim Number of simulated trial. The default value is
+#' \code{n.sim=1000}.
+#' @param seed.sim Seed for random number generator. The default value is
+#' \code{seed.sim=66}.
+#' @details The \code{boinet} is a function generates the operating
+#' characteristics of the Bayesian Optimal Interval design based on toxicity
+#' and efficacy (BOIN-ET) by simulating trials.
 #' @return Summary of simulation study results
+#' @references
+#' Kentaro Takeda, Masataka Taguri and Satoshi Morita. BONIN-ET:
+#' Bayesian optimal interval design for dose finding based on both efficacy
+#' and toxicity outcomes. *Pharmaceutical Statistics* 2018; 17(4):383-395.
+#'
+#' Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
+#' Optimal biological dose selection in dose-finding trials with
+#' model-assisted designs based on efficacy and toxicity: a simulation study.
+#' submitted.
 #' @examples
-#' boinet(estpt.method="obs.prob",obd.method="max.effprob");
-#' @import Iso
-#' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rweibull
+#' phi    <- 0.33
+#' phi1   <- phi*0.1
+#' phi2   <- phi*1.4
+#' delta  <- 0.70
+#' delta1 <- delta*0.6
+#'
+#' boinet(
+#'   n.dose=6, start.dose=1, size.cohort=3, n.cohort=12,
+#'   toxprob=c(0.01,0.03,0.06,0.12,0.18,0.30),
+#'   effprob=c(0.06,0.08,0.15,0.25,0.40,0.80),
+#'   phi=phi, phi1=phi1, phi2=phi2, delta=delta, delta1=delta1,
+#'   tau.T=30, tau.E=45,  accrual=10,
+#'   estpt.method="obs.prob", obd.method="max.effprob")
+#' @import Iso copula
+#' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rexp
 #' @export
 
 boinet <- function(
-            n.dose          = 6,
-            start.dose      = 1,
-            size.cohort     = 3,
-            n.cohort        = 12,
-            toxprob         = c(0.01,0.03,0.06,0.12,0.18,0.30),
-            effprob         = c(0.06,0.08,0.15,0.25,0.40,0.80),
-            phi             = 0.33,
-            phi1            = 0.033,
-            phi2            = 0.462,
-            delta           = 0.70,
-            delta1          = 0.42,
-            alpha.T1        = 0.5,
-            alpha.E1        = 0.5,
-            tau.T           = 30,
-            tau.E           = 45,
-            accrual         = 10,
-            stopping.prob.T = 0.95,
-            stopping.prob.E = 0.95,
-            estpt.method    = c("multi.iso","fp.logistic","obs.prob"),
-            obd.method      = c("utility.weighted","utility.truncated.linear","utility.scoring","max.effprob"),
-            w1              = 0.33,
-            w2              = 1.09,
-            psi00           = 40,
-            psi11           = 60,
-            n.sim           = 1000,
-            seed.sim        = 66)
+            n.dose, start.dose, size.cohort, n.cohort,
+            toxprob, effprob,
+            phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+            alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
+            te.corr=0.2, gen.event.time="weibull",
+            accrual, gen.enroll.time="uniform",
+            stopping.prob.T=0.95, stopping.prob.E=0.95,
+            estpt.method, obd.method,
+            w1= 0.33, w2=1.09, psi00=40, psi11=60, n.sim=1000, seed.sim=66)
 {
+  if(length(toxprob)!=n.dose){
+    stop("Number of dose must be the same as the length of true toxicity probability.")
+
+  }else if(length(effprob)!=n.dose){
+    stop("Number of dose must be the same as the length of true efficacy probability.")
+
+  }else if(!((phi1<phi)&(phi<phi2))){
+    stop("Design parameters must satisfy a condition of phi1 < phi < phi2.")
+
+  }else if(!(delta1<delta)){
+    stop("Design parameters must satisfy a condition of delta1 < delta.")
+
+  }else{
+
   dosen <- 1:n.dose
   dose  <- paste("Dose",dosen,sep="")
 
@@ -90,6 +165,42 @@ boinet <- function(
   alpha.E1 <- alpha.E1
   alpha.E2 <- 0.5
 
+  efftoxp <- list(toxp=toxp,effp=effp)
+
+  ncop    <- copula::normalCopula(te.corr,dim=2,dispstr="ex")
+  mv.ncop <- NULL
+
+  if(gen.event.time=="weibull"){
+
+    for(i in 1:n.dose){
+     psi.T    <- efftoxp$toxp[i][[1]]
+     zetta.T1 <- log(log(1-psi.T)/log(1-psi.T+alpha.T1*psi.T))/log(1/(1-alpha.T2))
+     zetta.T2 <- tau.T/(-log(1-psi.T))^(1/zetta.T1)
+
+     psi.E    <- efftoxp$effp[i][[1]]
+     zetta.E1 <- log(log(1-psi.E)/log(1-psi.E+alpha.E1*psi.E))/log(1/(1-alpha.E2))
+     zetta.E2 <- tau.E/(-log(1-psi.E))^(1/zetta.E1)
+
+     mv.ncop <- append(mv.ncop,copula::mvdc(copula       = ncop,
+                                            margins      = c("weibull","weibull"),
+                                            paramMargins = list(list(shape=zetta.T1,scale=zetta.T2),
+                                                                list(shape=zetta.E1,scale=zetta.E2))))
+    }
+
+  }else if(gen.event.time=="uniform"){
+
+    for(i in 1:n.dose){
+      psi.T <- efftoxp$toxp[i][[1]]
+      psi.E <- efftoxp$effp[i][[1]]
+
+      mv.ncop <- append(mv.ncop,copula::mvdc(copula       = ncop,
+                                             margins      = c("unif","unif"),
+                                             paramMargins = list(list(min=0,max=tau.T*(1/psi.T)),
+                                                                 list(min=0,max=tau.E*(1/psi.E)))))
+    }
+
+  }
+
   data.obs.n <- array(0,dim=c(n.sim,n.dose))
   data.dur   <- array(0,dim=c(n.sim))
 
@@ -98,8 +209,6 @@ boinet <- function(
   set.seed(seed.sim)
 
   for(ss in 1:n.sim){
-
-    efftoxp <- list(toxp=toxp,effp=effp)
 
     obs.n   <- numeric(n.dose)
     obs.tox <- numeric(n.dose)
@@ -120,21 +229,17 @@ boinet <- function(
         if(j==1){
           t.enter <- c(t.enter,t.decision)
         }else{
-          t.enter <- c(t.enter,t.enter[length(t.enter)]+runif(1,0,2*accrual))
+          if(gen.enroll.time=="uniform"){
+            t.enter <- c(t.enter,t.enter[length(t.enter)]+runif(1,0,2*accrual))
+          }else if(gen.enroll.time=="exponential"){
+            t.enter <- c(t.enter,t.enter[length(t.enter)]+rexp(1,1/accrual))
+          }
       }}
       t.decision <- t.enter[length(t.enter)]+max(tau.T,tau.E)
 
-      psi.T    <- sum(efftoxp$toxp[dlab])
-      zetta.T1 <- log(log(1-psi.T)/log(1-psi.T+alpha.T1*psi.T))/log(1/(1-alpha.T2))
-      zetta.T2 <- tau.T/(-log(1-psi.T))^(1/zetta.T1)
-      time.tox <- rweibull(ncoh,shape=zetta.T1,scale=zetta.T2)
-      DLT      <- as.numeric(time.tox<=tau.T)
-
-      psi.E    <- sum(efftoxp$effp[dlab])
-      zetta.E1 <- log(log(1-psi.E)/log(1-psi.E+alpha.E1*psi.E))/log(1/(1-alpha.E2))
-      zetta.E2 <- tau.E/(-log(1-psi.E))^(1/zetta.E1)
-      time.eff <- rweibull(ncoh,shape=zetta.E1,scale=zetta.E2)
-      ORR      <- as.numeric(time.eff<=tau.E)
+      time.te <- copula::rMvdc(ncoh,mv.ncop[[curdose]])
+      DLT     <- as.numeric(time.te[,1]<=tau.T)
+      ORR     <- as.numeric(time.te[,2]<=tau.E)
 
       obs.tox[curdose] <- obs.tox[curdose]+sum(DLT)
       pt[curdose] <- obs.tox[curdose]/obs.n[curdose]
@@ -297,6 +402,9 @@ boinet <- function(
   names(effprob)      <- dose
   names(phi)          <- "Target toxicity prob."
   names(delta)        <- "Target efficacy prob."
+  names(lambda1)      <- "Lower toxicity boundary"
+  names(lambda2)      <- "Upper toxicity boundary"
+  names(eta1)         <- "Lower efficacy boundary"
   names(tau.T)        <- "Tox. assessment window (days)"
   names(tau.E)        <- "Eff. assessment window (days)"
   names(accrual)      <- "Accrual rate (days)"
@@ -307,6 +415,9 @@ boinet <- function(
                  effprob      = effprob,
                  phi          = phi,
                  delta        = delta,
+                 lambda1      = lambda1,
+                 lambda2      = lambda2,
+                 eta1         = eta1,
                  tau.T        = tau.T,
                  tau.E        = tau.E,
                  accrual      = accrual,
@@ -319,5 +430,6 @@ boinet <- function(
 
   class(result) <- "boinet"
   result
-}
+
+}}
 

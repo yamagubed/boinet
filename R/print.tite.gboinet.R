@@ -29,11 +29,18 @@ print.tite.gboinet <- function(x,...)
   ptab3 <- rbind(
     x$phi,
     x$delta,
+    x$lambda1,
+    x$lambda2,
+    x$eta1)
+  rnames <- c(names(x$phi),names(x$delta),names(x$lambda1),names(x$lambda2),names(x$eta1))
+  dimnames(ptab3) <- list(rnames,"")
+
+  ptab4 <- rbind(
     x$tau.T,
     x$tau.E,
     x$accrual)
-  rnames <- c(names(x$phi),names(x$delta),names(x$tau.T),names(x$tau.E),names(x$accrual))
-  dimnames(ptab3) <- list(rnames,"")
+  rnames <- c(names(x$tau.T),names(x$tau.E),names(x$accrual))
+  dimnames(ptab4) <- list(rnames,"")
 
   cat("\n")
   cat("Simulation results:\n")
@@ -43,6 +50,7 @@ print.tite.gboinet <- function(x,...)
   cat("\n")
   cat("Trial design settings:\n")
   print.default(ptab3,print.gap=2L,quote=FALSE)
+  print.default(ptab4,print.gap=2L,quote=FALSE)
   cat("\n")
   cat("Efficacy prob. estimation:",x$estpt.method)
   cat("\n")

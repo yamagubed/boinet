@@ -24,7 +24,10 @@ tite.gboinet(
   alpha.E1 = 0.5,
   tau.T = 30,
   tau.E = 45,
+  te.corr = 0.2,
+  gen.event.time = "weibull",
   accrual = 10,
+  gen.enroll.time = "uniform",
   stopping.prob.T = 0.95,
   stopping.prob.E = 0.95,
   estpt.method = c("multi.iso", "fp.logistic", "obs.prob"),
@@ -73,7 +76,13 @@ tite.gboinet(
 
 \item{tau.E}{Assessment period for efficacy (days) (default: 45)}
 
+\item{te.corr}{Correlation between toxicity and efficacy (default: 0.2)}
+
+\item{gen.event.time}{Methods to generate toxicity and efficacy data (default: "weibull")}
+
 \item{accrual}{Accrual rate (days) (default: 10)}
+
+\item{gen.enroll.time}{Methods to generate enrollment time (default: "uniform")}
 
 \item{stopping.prob.T}{Stopping probability for toxicity (default: 0.95)}
 
@@ -103,4 +112,15 @@ Simulation study is conducted for TITE-gBOIN-ET design.
 }
 \examples{
 tite.gboinet(estpt.method="obs.prob",obd.method="max.effprob");
+}
+\references{
+Kentaro Takeda, Yusuke Yamaguchi, Masataka Taguri and Satoshi Morita.
+TITE-gBOIN-ET: Time-to-event generalized Bayesian optimal interval design to
+accelerate dose-finding accounting for ordinal graded efficacy and toxicity
+outcomes. submitted.
+
+Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
+Optimal biological dose selection in dose-finding trials with
+model-assisted designs based on efficacy and toxicity: a simulation study.
+submitted.
 }

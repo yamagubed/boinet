@@ -5,87 +5,114 @@
 \title{Simulation study of BOIN-ET design}
 \usage{
 boinet(
-  n.dose = 6,
-  start.dose = 1,
-  size.cohort = 3,
-  n.cohort = 12,
-  toxprob = c(0.01, 0.03, 0.06, 0.12, 0.18, 0.3),
-  effprob = c(0.06, 0.08, 0.15, 0.25, 0.4, 0.8),
-  phi = 0.33,
-  phi1 = 0.033,
-  phi2 = 0.462,
-  delta = 0.7,
-  delta1 = 0.42,
-  alpha.T1 = 0.5,
-  alpha.E1 = 0.5,
-  tau.T = 30,
-  tau.E = 45,
-  accrual = 10,
-  stopping.prob.T = 0.95,
-  stopping.prob.E = 0.95,
-  estpt.method = c("multi.iso", "fp.logistic", "obs.prob"),
-  obd.method = c("utility.weighted", "utility.truncated.linear", "utility.scoring",
-    "max.effprob"),
-  w1 = 0.33,
-  w2 = 1.09,
-  psi00 = 40,
-  psi11 = 60,
-  n.sim = 1000,
-  seed.sim = 66
-)
+  n.dose, start.dose, size.cohort, n.cohort,
+  toxprob, effprob,
+  phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+  alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
+  te.corr=0.2, gen.event.time="weibull",
+  accrual, gen.enroll.time="uniform",
+  stopping.prob.T=0.95, stopping.prob.E=0.95,
+  estpt.method, obd.method,
+  w1= 0.33, w2=1.09, psi00=40, psi11=60, n.sim=1000, seed.sim=66)
 }
 \arguments{
-\item{n.dose}{Number of dose (default: 6)}
+\item{n.dose}{Number of dose.}
 
-\item{start.dose}{Starting dose (default: 1)}
+\item{start.dose}{Starting dose.}
 
-\item{size.cohort}{Cohort size (default: 3)}
+\item{size.cohort}{Cohort size.}
 
-\item{n.cohort}{Number of cohort (default: 12)}
+\item{n.cohort}{Number of cohort.}
 
-\item{toxprob}{True toxicity probability (default: c(0.01,0.03,0.06,0.12,0.18,0.30))}
+\item{toxprob}{Vector of true toxicity probability.}
 
-\item{effprob}{True efficacy probability (default: c(0.06,0.08,0.15,0.25,0.40,0.80))}
+\item{effprob}{Vector of true efficacy probability.}
 
-\item{phi}{Target toxicity probability (default: 0.33)}
+\item{phi}{Target toxicity probability.}
 
-\item{phi1}{Lower bound of toxicity probability (default: 0.033)}
+\item{phi1}{Highest toxicity probability that is deemed sub-therapeutic such
+that dose-escalation should be pursued. The default value is
+\code{phi1=phi*0.1}.}
 
-\item{phi2}{Upper bound of toxicity probability (default: 0.462)}
+\item{phi2}{Lowest toxicity probability that is deemed overly toxic such that
+dose de-escalation is needed. The default value is \code{phi2=phi*1.4}.}
 
-\item{delta}{Target efficacy probability (default: 0.70)}
+\item{delta}{Target efficacy probability.}
 
-\item{delta1}{Lower bound of efficacy probability (default: 0.42)}
+\item{delta1}{Minimum probability deemed efficacious such that the dose
+levels with less than delta1 are considered sub-therapeutic.
+The default value is \code{delta1=delta*0.6}.}
 
-\item{alpha.T1}{Probability that toxicity event occurs in the late half of assessment window (default: 0.5)}
+\item{alpha.T1}{Probability that toxicity event occurs in the late half of
+toxicity assessment window. The default value is \code{alpha.T1=0.5}.}
 
-\item{alpha.E1}{Probability that efficacy event occurs in the late half of assessment window (default: 0.5)}
+\item{alpha.E1}{Probability that efficacy event occurs in the late half of
+assessment window. The default value is \code{alpha.E1=0.5}.}
 
-\item{tau.T}{Assessment period for toxicity (days) (default: 30)}
+\item{tau.T}{Toxicity assessment windows (days).}
 
-\item{tau.E}{Assessment period for efficacy (days) (default: 45)}
+\item{tau.E}{Efficacy assessment windows (days).}
 
-\item{accrual}{Accrual rate (days) (default: 10)}
+\item{te.corr}{Correlation between toxicity and efficacy probability. The
+default value is \code{te.corr=0.2}.}
 
-\item{stopping.prob.T}{Stopping probability for toxicity (default: 0.95)}
+\item{gen.event.time}{Method to generate the time to first toxicity and
+efficacy outcome. Weibull distribution is used if \code{"weibull"}.
+Uniform distribution is used if \code{"uniform"}.
+The default value is \code{weibull}.}
 
-\item{stopping.prob.E}{Stopping probability for efficacy (default: 0.95)}
+\item{accrual}{Accrual rate (days) (average number of days necessary to
+enroll one patient).}
 
-\item{estpt.method}{Methods to estimate efficacy probability}
+\item{gen.enroll.time}{Method to generate enrollment time. Uniform
+distribution is used if \code{"uniform"}. Exponential distribution is used if
+\code{"exponential"}. The default value is \code{"uniform"}.}
 
-\item{obd.method}{Methods to select OBD}
+\item{stopping.prob.T}{Early study termination criteria for toxicity,
+which is a value between 0 and 1. If the posterior probability that toxicity
+outcome is less than the target toxicity probability (phi) is larger than
+this criteria, the dose levels are eliminated from the study. The default
+value is \code{stopping.prob.T=0.95}.}
 
-\item{w1}{Weight for toxicity-efficacy trade-off (default: 0.33)}
+\item{stopping.prob.E}{Early study termination criteria for efficacy,
+which is a value between 0 and 1. If the posterior probability that efficacy
+outcome is less than the minimum efficacy probability (delta1) is larger
+then this criteria, the dose levels are eliminated from the study.
+The default value is \code{stopping.prob.E=0.95}.}
 
-\item{w2}{Weight for penalty imposed on toxic doses (default: 1.09)}
+\item{estpt.method}{Method to estimate the efficacy probability. Fractional
+polynomial logistic regression is used if \code{"fp.logistic"}. Model
+averaging of multiple unimodal isotopic regression is used if
+\code{"multi.iso"}. Observed efficacy probability is used if
+\code{"obs.prob"}.}
 
-\item{psi00}{Score for toxicity=no and efficacy=no (default: 40)}
+\item{obd.method}{Method to select the OBD. Utility defined by weighted
+function is used if \code{"utility.weighted"}. Utility defined by truncated
+linear function is used if \code{"utility.truncated.linear"}. Utility defined
+by scoring is used if \code{"utility.scoring"}. Highest estimated efficacy
+probability is used if \code{"max.effprob"}.}
 
-\item{psi11}{Score for toxicity=yes and efficacy=yes (default: 60)}
+\item{w1}{Weight for toxicity-efficacy trade-off in utility defined by
+weighted function, which needs \code{obd.method="utility.weighted"}.The
+default value is \code{w1=0.33}.}
 
-\item{n.sim}{Number of simulated trial (default: 1000)}
+\item{w2}{Weight for penalty imposed on toxic doses in utility defined by
+weighted function, which needs \code{obd.method="utility.weighted"}. The
+default value is \code{w2=1.09}.}
 
-\item{seed.sim}{Seed for random number generator (default: 66)}
+\item{psi00}{Score for toxicity=no and efficacy=no in utility defined by
+scoring, which needs \code{obd.method="utility.scoring"}. The default value
+is \code{psi00=40}.}
+
+\item{psi11}{Score for toxicity=yes and efficacy=yes in utility defined by
+scoring, which needs \code{obd.method="utility.scoring"}. The default value
+is \code{psi11=60}.}
+
+\item{n.sim}{Number of simulated trial. The default value is
+\code{n.sim=1000}.}
+
+\item{seed.sim}{Seed for random number generator. The default value is
+\code{seed.sim=66}.}
 }
 \value{
 Summary of simulation study results
@@ -93,6 +120,33 @@ Summary of simulation study results
 \description{
 Simulation study is conducted for BOIN-ET design.
 }
+\details{
+The \code{boinet} is a function generates the operating
+characteristics of the Bayesian Optimal Interval design based on toxicity
+and efficacy (BOIN-ET) by simulating trials.
+}
 \examples{
-boinet(estpt.method="obs.prob",obd.method="max.effprob");
+phi    <- 0.33
+phi1   <- phi*0.1
+phi2   <- phi*1.4
+delta  <- 0.70
+delta1 <- delta*0.6
+
+boinet(
+  n.dose=6, start.dose=1, size.cohort=3, n.cohort=12,
+  toxprob=c(0.01,0.03,0.06,0.12,0.18,0.30),
+  effprob=c(0.06,0.08,0.15,0.25,0.40,0.80),
+  phi=phi, phi1=phi1, phi2=phi2, delta=delta, delta1=delta1,
+  tau.T=30, tau.E=45,  accrual=10,
+  estpt.method="obs.prob", obd.method="max.effprob")
+}
+\references{
+Kentaro Takeda, Masataka Taguri and Satoshi Morita. BONIN-ET:
+Bayesian optimal interval design for dose finding based on both efficacy
+and toxicity outcomes. \emph{Pharmaceutical Statistics} 2018; 17(4):383-395.
+
+Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
+Optimal biological dose selection in dose-finding trials with
+model-assisted designs based on efficacy and toxicity: a simulation study.
+submitted.
 }
