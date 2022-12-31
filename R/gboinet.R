@@ -184,6 +184,8 @@
 #' estpt.method <- "obs.prob"
 #' obd.method   <- "max.effprob"
 #'
+#' n.sim <- 100
+#'
 #' gboinet(
 #'   n.dose=n.dose, start.dose=start.dose,
 #'   size.cohort=size.cohort, n.cohort=n.cohort,
@@ -191,7 +193,8 @@
 #'   sev.weight=sev.weight, res.weight=res.weight,
 #'   phi=phi, delta=delta,
 #'   tau.T=tau.T, tau.E=tau.E, accrual=accrual,
-#'   estpt.method=estpt.method, obd.method=obd.method)
+#'   estpt.method=estpt.method, obd.method=obd.method,
+#'   n.sim=n.sim)
 #' @import Iso copula
 #' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rexp
 #' @export

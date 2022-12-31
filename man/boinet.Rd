@@ -202,13 +202,16 @@ accrual <- 10
 estpt.method <- "obs.prob"
 obd.method   <- "max.effprob"
 
+n.sim <- 100
+
 boinet(
   n.dose=n.dose, start.dose=start.dose,
   size.cohort=size.cohort, n.cohort=n.cohort,
   toxprob=toxprob, effprob=effprob,
   phi=phi, delta=delta,
   tau.T=tau.T, tau.E=tau.E, accrual=accrual,
-  estpt.method=estpt.method, obd.method=obd.method)
+  estpt.method=estpt.method, obd.method=obd.method,
+  n.sim=n.sim)
 }
 \references{
 Kentaro Takeda, Masataka Taguri and Satoshi Morita. BONIN-ET:
