@@ -4,18 +4,18 @@
 \alias{utility.weighted}
 \title{Utility defined by weighted function}
 \usage{
-utility.weighted(probt, probe, w1 = 0.33, w2 = 1.09, tox.upper = 0.462)
+utility.weighted(probt, probe, w1, w2, tox.upper)
 }
 \arguments{
-\item{probt}{Estimated toxicity probability}
+\item{probt}{Estimated toxicity probability.}
 
-\item{probe}{Estimated efficacy probability}
+\item{probe}{Estimated efficacy probability.}
 
-\item{w1}{Weight for toxicity-efficacy trade-off (default: 0.33)}
+\item{w1}{Weight for toxicity-efficacy trade-off.}
 
-\item{w2}{Weight for penalty imposed on toxic doses (default: 1.09)}
+\item{w2}{Weight for penalty imposed on toxic doses.}
 
-\item{tox.upper}{Upper bound of toxicity probability (default: 0.462)}
+\item{tox.upper}{Upper bound of toxicity probability.}
 }
 \value{
 Utility value
@@ -23,7 +23,4 @@ Utility value
 \description{
 Given estimated toxicity and efficacy probabilities, the utility which is
 defined by a weighted function is Calculated.
-}
-\examples{
-utility.weighted(probt=c(0.1,0.2,0.4),probe=c(0.2,0.6,0.6));
 }

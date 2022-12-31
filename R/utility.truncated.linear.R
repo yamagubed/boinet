@@ -5,17 +5,14 @@
 #' defined by truncated linear functions is Calculated.
 #' @param probt Estimated toxicity probability
 #' @param probe Estimated efficacy probability
-#' @param tlow Lower bound for toxicity (default: 0.033)
-#' @param tupp Upper bound for toxicity (default: 0.462)
-#' @param elow Lower bound for efficacy (default: 0.21)
-#' @param eupp Upper bound for efficacy (default: 0.70)
+#' @param tlow Lower threshold of toxicity linear truncated function.
+#' @param tupp Upper threshold of toxicity linear truncated function.
+#' @param elow Lower threshold of efficacy linear truncated function.
+#' @param eupp Upper threshold of efficacy linear truncated function.
 #' @return Utility value
-#' @examples
-#' utility.truncated.linear(probt=c(0.1,0.2,0.4),probe=c(0.2,0.6,0.6));
 #' @export
 
-utility.truncated.linear <- function(probt,probe,
-                                     tlow=0.033,tupp=0.462,elow=0.21,eupp=0.70)
+utility.truncated.linear <- function(probt,probe,tlow,tupp,elow,eupp)
 {
   ld  <- length(probt)
   fpe <- numeric(ld)

@@ -19,6 +19,3 @@ Given the location of the mode to be at each dose level, the unimodal
 isotonically transformed values are calculated. A frequentist model
 averaging approach is used to obtain the  estimated efficacy probability.
 }
-\examples{
-multi.iso(obs=c(1,5,2),n=c(3,6,9));
-}

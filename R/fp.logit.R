@@ -6,10 +6,8 @@
 #' chosen by not taking into account the closed testing procedure.
 #' @param obs Number of patients with events
 #' @param n Number of patients
-#' @param dose Dose
+#' @param dose Dose level
 #' @return Estimated probability
-#' @examples
-#' fp.logit(obs=c(1,5,2),n=c(3,6,9),dose=c(1,2,3));
 #' @import mfp
 #' @export
 

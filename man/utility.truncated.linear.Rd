@@ -4,27 +4,20 @@
 \alias{utility.truncated.linear}
 \title{Utility defined by truncated linear function}
 \usage{
-utility.truncated.linear(
-  probt,
-  probe,
-  tlow = 0.033,
-  tupp = 0.462,
-  elow = 0.21,
-  eupp = 0.7
-)
+utility.truncated.linear(probt, probe, tlow, tupp, elow, eupp)
 }
 \arguments{
 \item{probt}{Estimated toxicity probability}
 
 \item{probe}{Estimated efficacy probability}
 
-\item{tlow}{Lower bound for toxicity (default: 0.033)}
+\item{tlow}{Lower threshold of toxicity linear truncated function.}
 
-\item{tupp}{Upper bound for toxicity (default: 0.462)}
+\item{tupp}{Upper threshold of toxicity linear truncated function.}
 
-\item{elow}{Lower bound for efficacy (default: 0.21)}
+\item{elow}{Lower threshold of efficacy linear truncated function.}
 
-\item{eupp}{Upper bound for efficacy (default: 0.70)}
+\item{eupp}{Upper threshold of efficacy linear truncated function.}
 }
 \value{
 Utility value
@@ -32,7 +25,4 @@ Utility value
 \description{
 Given estimated toxicity and efficacy probabilities, the utility which is
 defined by truncated linear functions is Calculated.
-}
-\examples{
-utility.truncated.linear(probt=c(0.1,0.2,0.4),probe=c(0.2,0.6,0.6));
 }

@@ -11,7 +11,7 @@ fp.logit(obs, n, dose)
 
 \item{n}{Number of patients}
 
-\item{dose}{Dose}
+\item{dose}{Dose level}
 }
 \value{
 Estimated probability
@@ -20,7 +20,4 @@ Estimated probability
 Fractional polynomial (FP) logistic regression with two degrees of freedom is
 performed to estimate the efficacy probabilities. The Best fitting FP model is
 chosen by not taking into account the closed testing procedure.
-}
-\examples{
-fp.logit(obs=c(1,5,2),n=c(3,6,9),dose=c(1,2,3));
 }

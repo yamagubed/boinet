@@ -1,39 +1,151 @@
 
-#' Simulation study of gBOIN-ET design
+#' Conducting simulation study of gBOIN-ET design
 #'
-#' Simulation study is conducted for gBOIN-ET design.
-#' @param n.dose Number of dose (default: 6)
-#' @param start.dose Starting dose (default: 1)
-#' @param size.cohort Cohort size (default: 3)
-#' @param n.cohort Number of cohort (default: 12)
-#' @param toxprob True toxicity probability
-#' @param effprob True efficacy probability
-#' @param sev.weight Weight for toxicity category (default: c(0.00,0.50,1.00,1.50))
-#' @param res.weight Weight for efficacy category (default: c(0.00,0.25,1.00,3.00))
-#' @param phi Target toxicity probability (default: 0.33)
-#' @param phi1 Lower bound of toxicity probability (default: 0.033)
-#' @param phi2 Upper bound of toxicity probability (default: 0.462)
-#' @param delta Target efficacy probability (default: 0.70)
-#' @param delta1 Lower bound of efficacy probability (default: 0.42)
-#' @param alpha.T1 Probability that toxicity event occurs in the late half of assessment window (default: 0.5)
-#' @param alpha.E1 Probability that efficacy event occurs in the late half of assessment window (default: 0.5)
-#' @param tau.T Assessment period for toxicity (days) (default: 30)
-#' @param tau.E Assessment period for efficacy (days) (default: 45)
-#' @param te.corr Correlation between toxicity and efficacy (default: 0.2)
-#' @param gen.event.time Methods to generate toxicity and efficacy data (default: "weibull")
-#' @param accrual Accrual rate (days) (default: 10)
-#' @param gen.enroll.time Methods to generate enrollment time (default: "uniform")
-#' @param stopping.prob.T Stopping probability for toxicity (default: 0.95)
-#' @param stopping.prob.E Stopping probability for efficacy (default: 0.95)
-#' @param estpt.method Methods to estimate efficacy probability
-#' @param obd.method Methods to select OBD
-#' @param w1 Weight for toxicity-efficacy trade-off (default: 0.33)
-#' @param w2 Weight for penalty imposed on toxic doses (default: 1.09)
-#' @param psi00 Score for toxicity=no and efficacy=no (default: 40)
-#' @param psi11 Score for toxicity=yes and efficacy=yes (default: 60)
-#' @param n.sim Number of simulated trial (default: 1000)
-#' @param seed.sim Seed for random number generator (default: 66)
-#' @return Summary of simulation study results
+#' Generalized Bayesian optimal interval design for optimal dose-finding
+#' accounting for ordinal graded efficacy and toxicity (gBOIN-ET design) is
+#' implemented under a scenario specified. Operating characteristics of the
+#' design are summarized by the percentage of times that each dose level was
+#' selected as optimal biological dose and the average number of patients who
+#' were treated at each dose level.
+#' @usage
+#' gboinet(
+#'   n.dose, start.dose, size.cohort, n.cohort,
+#'   toxprob, effprob, sev.weight, res.weight,
+#'   phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+#'   alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
+#'   te.corr=0.2, gen.event.time="weibull",
+#'   accrual, gen.enroll.time="uniform",
+#'   stopping.npts=size.cohort*n.cohort,
+#'   stopping.prob.T=0.95, stopping.prob.E=0.95,
+#'   estpt.method, obd.method,
+#'   w1=0.33, w2=1.09,
+#'   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
+#'   psi00=40, psi11=60,
+#'   n.sim=1000, seed.sim=66)
+#' @param n.dose Number of dose.
+#' @param start.dose Starting dose. The lowest dose is generally recommended.
+#' @param size.cohort Cohort size.
+#' @param n.cohort Number of cohort.
+#' @param toxprob Vector of true toxicity probability.
+#' @param effprob Vector of true efficacy probability.
+#' @param sev.weight Vector of weight for toxicity category.
+#' @param res.weight Vector of weight for efficacy category.
+#' @param phi Target toxicity probability.
+#' @param phi1 Highest toxicity probability that is deemed sub-therapeutic such
+#' that dose-escalation should be pursued. The default value is
+#' \code{phi1=phi*0.1}.
+#' @param phi2 Lowest toxicity probability that is deemed overly toxic such that
+#' dose de-escalation is needed. The default value is \code{phi2=phi*1.4}.
+#' @param delta Target efficacy probability.
+#' @param delta1 Minimum probability deemed efficacious such that the dose
+#' levels with less than delta1 are considered sub-therapeutic.
+#' The default value is \code{delta1=delta*0.6}.
+#' @param alpha.T1 Probability that toxicity event occurs in the late half of
+#' toxicity assessment window. The default value is \code{alpha.T1=0.5}.
+#' @param alpha.E1 Probability that efficacy event occurs in the late half of
+#' assessment window. The default value is \code{alpha.E1=0.5}.
+#' @param tau.T Toxicity assessment windows (days).
+#' @param tau.E Efficacy assessment windows (days).
+#' @param te.corr Correlation between toxicity and efficacy probability,
+#' specified as Gaussian copula parameter. The default value is
+#' \code{te.corr=0.2}.
+#' @param gen.event.time Method to generate the time to first toxicity and
+#' efficacy outcome. Weibull distribution is used when
+#' \code{gen.event.time="weibull"}. Uniform distribution is used when
+#' \code{gen.event.time="uniform"}. The default value is
+#' \code{gen.event.time=weibull}.
+#' @param accrual Accrual rate (days) (average number of days necessary to
+#' enroll one patient).
+#' @param gen.enroll.time Method to generate enrollment time. Uniform
+#' distribution is used when \code{gen.enroll.time="uniform"}. Exponential
+#' distribution is used when \code{gen.enroll.time="exponential"}. The default
+#' value is \code{gen.enroll.time="uniform"}.
+#' @param stopping.npts Early study termination criteria. If the number of
+#' patients at the current dose reaches this criteria, the study is terminated.
+#' The default value is \code{stopping.npts=size.cohort*n.cohort}.
+#' @param stopping.prob.T Early study termination criteria for toxicity,
+#' taking a value between 0 and 1. If the posterior probability that toxicity
+#' outcome is less than the target toxicity probability (phi) is larger than
+#' this criteria, the dose levels are eliminated from the study. The default
+#' value is \code{stopping.prob.T=0.95}.
+#' @param stopping.prob.E Early study termination criteria for efficacy,
+#' taking a value between 0 and 1. If the posterior probability that efficacy
+#' outcome is less than the minimum efficacy probability (delta1) is larger
+#' then this criteria, the dose levels are eliminated from the study.
+#' The default value is \code{stopping.prob.E=0.95}.
+#' @param estpt.method Method to estimate the efficacy probability. Fractional
+#' polynomial logistic regression is used when \code{estpt.method="fp.logistic"}.
+#' Model averaging of multiple unimodal isotopic regression is used when
+#' \code{estpt.method="multi.iso"}. Observed efficacy probability is used when
+#' \code{estpt.method="obs.prob"}.
+#' @param obd.method Method to select the optimal biological dose. Utility
+#' defined by weighted function is used when \code{obd.method="utility.weighted"}.
+#' Utility defined by truncated linear function is used when
+#' \code{obd.method="utility.truncated.linear"}. Utility defined by scoring is
+#' used when \code{obd.method="utility.scoring"}. Highest estimated efficacy
+#' probability is used when \code{obd.method="max.effprob"}.
+#' @param w1 Weight for toxicity-efficacy trade-off in utility defined by
+#' weighted function. This must be specified when using
+#' \code{obd.method="utility.weighted"}. The default value is \code{w1=0.33}.
+#' @param w2 Weight for penalty imposed on toxic doses in utility defined by
+#' weighted function. This must be specified when using
+#' \code{obd.method="utility.weighted"}. The default value is \code{w2=1.09}.
+#' @param plow.ast Lower threshold of toxicity linear truncated function. This
+#' must be specified when using \code{obd.method="utility.truncated.linear"}.
+#' The default value is \code{plow.ast=phi1}.
+#' @param pupp.ast Upper threshold of toxicity linear truncated function. This
+#' must be specified when using \code{obd.method="utility.truncated.linear"}.
+#' The default value is \code{pupp.ast=phi2}.
+#' @param qlow.ast Lower threshold of efficacy linear truncated function. This
+#' must be specified when using \code{obd.method="utility.truncated.linear"}.
+#' The default value is \code{qlow.ast=delta1/2}.
+#' @param qupp.ast Upper threshold of efficacy linear truncated function. This
+#' must be specified when using \code{obd.method="utility.truncated.linear"}.
+#' The default value is \code{qupp.ast=delta}.
+#' @param psi00 Score for toxicity=no and efficacy=no in utility defined by
+#' scoring. This must be specified when using \code{obd.method="utility.scoring"}.
+#' The default value is \code{psi00=40}.
+#' @param psi11 Score for toxicity=yes and efficacy=yes in utility defined by
+#' scoring. This must be specified when using \code{obd.method="utility.scoring"}.
+#' The default value is \code{psi11=60}.
+#' @param n.sim Number of simulated trial. The default value is
+#' \code{n.sim=1000}.
+#' @param seed.sim Seed for random number generator. The default value is
+#' \code{seed.sim=66}.
+#' @details The \code{gboinet} is a function which generates the operating
+#' characteristics of the generalized Bayesian optimal interval design for
+#' optimal dose-finding accounting for ordinal graded efficacy and toxicity
+#' (gBOIN-ET design) by a simulation study. Users can specify a
+#' variety of study settings to simulate studies, and choose methods to estimate
+#' the efficacy probability and to select the optimal biological dose. The
+#' operating characteristics of the design are summarized by the percentage of
+#' times that each dose level was selected as optimal biological dose and the
+#' average number of patients who were treated at each dose level. The
+#' percentage of times that the study was terminated and the expected study
+#' duration are also provided.
+#' @return
+#' The \code{gboinet} returns a list containing the following components:
+#' \item{toxprob}{True toxicity probability.}
+#' \item{effprob}{True efficacy probability.}
+#' \item{nETS}{Normalized equivalent toxicity score.}
+#' \item{nEES}{Normalized equivalent efficacy score.}
+#' \item{phi}{Target toxicity probability.}
+#' \item{delta}{Target efficacy probability.}
+#' \item{lambda1}{Lower toxicity boundary in dose escalation/de-escalation.}
+#' \item{lambda2}{Upper toxicity boundary in dose escalation/de-escalation.}
+#' \item{eta1}{Lower efficacy boundary in dose escalation/de-escalation.}
+#' \item{tau.T}{Toxicity assessment windows (days).}
+#' \item{tau.E}{Efficacy assessment windows (days).}
+#' \item{accrual}{Accrual rate (days) (average number of days necessary to
+#' enroll one patient).}
+#' \item{estpt.method}{Method to estimate the efficacy probability.}
+#' \item{obd.method}{Method to select the optimal biological dose.}
+#' \item{n.patient}{Average number of patients who were treated at each dose
+#' level}
+#' \item{prop.select}{Percentage of times that each dose level was selected as
+#' optimal biological dose.}
+#' \item{prop.stop}{Percentage of times that the study was terminated.}
+#' \item{duration}{Expected study duration (days)}
 #' @references
 #' Kentaro Takeda, Satoshi Morita and Masataka Taguri. gBOIN-ET: The generalized
 #' Bayesian optimal interval design for optimal dose-finding accounting for
@@ -45,49 +157,59 @@
 #' model-assisted designs based on efficacy and toxicity: a simulation study.
 #' submitted.
 #' @examples
-#' gboinet(estpt.method="obs.prob",obd.method="max.effprob");
+#' n.dose      <- 6
+#' start.dose  <- 1
+#' size.cohort <- 3
+#' n.cohort    <- 12
+#'
+#' toxprob <- rbind(c(0.94,0.87,0.79,0.68,0.62,0.50),
+#'                  c(0.05,0.10,0.15,0.20,0.20,0.20),
+#'                  c(0.01,0.03,0.05,0.10,0.15,0.25),
+#'                  c(0.00,0.00,0.01,0.02,0.03,0.05))
+#' effprob <- rbind(c(0.64,0.52,0.45,0.35,0.20,0.05),
+#'                  c(0.30,0.40,0.40,0.40,0.40,0.15),
+#'                  c(0.05,0.05,0.10,0.15,0.20,0.35),
+#'                  c(0.01,0.03,0.05,0.10,0.20,0.45))
+#'
+#' sev.weight <- c(0.00,0.50,1.00,1.50)
+#' res.weight <- c(0.00,0.25,1.00,3.00)
+#'
+#' phi   <- 0.33
+#' delta <- 0.70
+#'
+#' tau.T   <- 30
+#' tau.E   <- 45
+#' accrual <- 10
+#'
+#' estpt.method <- "obs.prob"
+#' obd.method   <- "max.effprob"
+#'
+#' gboinet(
+#'   n.dose=n.dose, start.dose=start.dose,
+#'   size.cohort=size.cohort, n.cohort=n.cohort,
+#'   toxprob=toxprob, effprob=effprob,
+#'   sev.weight=sev.weight, res.weight=res.weight,
+#'   phi=phi, delta=delta,
+#'   tau.T=tau.T, tau.E=tau.E, accrual=accrual,
+#'   estpt.method=estpt.method, obd.method=obd.method)
 #' @import Iso copula
 #' @importFrom stats binomial dbinom pbeta pbinom rmultinom runif rexp
 #' @export
 
 gboinet <- function(
-            n.dose          = 6,
-            start.dose      = 1,
-            size.cohort     = 3,
-            n.cohort        = 12,
-            toxprob         = rbind(c(0.94,0.87,0.79,0.68,0.62,0.50),
-                                    c(0.05,0.10,0.15,0.20,0.20,0.20),
-                                    c(0.01,0.03,0.05,0.10,0.15,0.25),
-                                    c(0.00,0.00,0.01,0.02,0.03,0.05)),
-            effprob         = rbind(c(0.64,0.52,0.45,0.35,0.20,0.05),
-                                    c(0.30,0.40,0.40,0.40,0.40,0.15),
-                                    c(0.05,0.05,0.10,0.15,0.20,0.35),
-                                    c(0.01,0.03,0.05,0.10,0.20,0.45)),
-            sev.weight      = c(0.00,0.50,1.00,1.50),
-            res.weight      = c(0.00,0.25,1.00,3.00),
-            phi             = 0.33,
-            phi1            = 0.033,
-            phi2            = 0.462,
-            delta           = 0.70,
-            delta1          = 0.42,
-            alpha.T1        = 0.5,
-            alpha.E1        = 0.5,
-            tau.T           = 30,
-            tau.E           = 45,
-            te.corr         = 0.2,
-            gen.event.time  = "weibull",
-            accrual         = 10,
-            gen.enroll.time = "uniform",
-            stopping.prob.T = 0.95,
-            stopping.prob.E = 0.95,
-            estpt.method    = c("multi.iso","fp.logistic","obs.prob"),
-            obd.method      = c("utility.weighted","utility.truncated.linear","utility.scoring","max.effprob"),
-            w1              = 0.33,
-            w2              = 1.09,
-            psi00           = 40,
-            psi11           = 60,
-            n.sim           = 1000,
-            seed.sim        = 66)
+             n.dose, start.dose, size.cohort, n.cohort,
+             toxprob, effprob, sev.weight, res.weight,
+             phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+             alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
+             te.corr=0.2, gen.event.time="weibull",
+             accrual, gen.enroll.time="uniform",
+             stopping.npts=size.cohort*n.cohort,
+             stopping.prob.T=0.95, stopping.prob.E=0.95,
+             estpt.method, obd.method,
+             w1=0.33, w2=1.09,
+             plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
+             psi00=40, psi11=60,
+             n.sim=1000, seed.sim=66)
 {
   if(ncol(toxprob)!=n.dose){
     stop("Number of dose must be the same as the length of true toxicity probability.")
@@ -271,6 +393,10 @@ gboinet <- function(
 
       if(sum(admflg)==0){
         break
+
+      }else if(sum(obs.n>=stopping.npts)>0){
+        break
+
       }else{
 
         if(nxtdose==0){
@@ -345,23 +471,13 @@ gboinet <- function(
       }
 
       obd[ss] <- obd.select(
-                   probt     = estpt,
-                   probe     = estpe,
-                   method    = obd.method,
-                   phi       = phi,
-                   phi1      = phi1,
-                   phi2      = phi2,
-                   delta     = delta,
-                   delta1    = delta1,
-                   tterm     = tterm.obd[evadose],
-                   eterm     = eterm.obd[evadose],
-                   stopT     = stopping.prob.T,
-                   stopE     = stopping.prob.E,
-                   w1        = w1,
-                   w2        = w2,
-                   tox.upper = phi2,
-                   psi00     = psi00,
-                   psi11     = psi11)
+                   probt=estpt, probe=estpe, method=obd.method,
+                   phi=phi, phi1=phi1, phi2=phi2, delta=delta, delta1=delta1,
+                   tterm=tterm.obd[evadose], eterm=eterm.obd[evadose],
+                   stopT=stopping.prob.T, stopE=stopping.prob.E,
+                   w1=w1, w2=w2,
+                   plow.ast=plow.ast, pupp.ast=pupp.ast, qlow.ast=qlow.ast, qupp.ast=qupp.ast,
+                   psi00=psi00, psi11=psi11)
     }
   }
 

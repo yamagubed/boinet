@@ -7,8 +7,6 @@
 #' @param obs Number of patients with events
 #' @param n Number of patients
 #' @return Estimated probability
-#' @examples
-#' multi.iso(obs=c(1,5,2),n=c(3,6,9));
 #' @import Iso
 #' @export
 

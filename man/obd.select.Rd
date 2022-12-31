@@ -5,67 +5,72 @@
 \title{Optimal biological dose selection}
 \usage{
 obd.select(
-  probt = c(0.1, 0.2, 0.4),
-  probe = c(0.2, 0.6, 0.6),
-  method = c("utility.weighted", "utility.truncated.linear", "utility.scoring",
-    "max.effprob"),
-  phi = 0.33,
-  phi1 = 0.033,
-  phi2 = 0.462,
-  delta = 0.7,
-  delta1 = 0.42,
-  tterm = c(0.5, 0.5, 0.5),
-  eterm = c(0.5, 0.5, 0.5),
-  stopT = 0.95,
-  stopE = 0.95,
-  w1 = 0.33,
-  w2 = 1.09,
-  tox.upper = 0.462,
-  psi00 = 40,
-  psi11 = 60
+  probt,
+  probe,
+  method,
+  phi,
+  phi1,
+  phi2,
+  delta,
+  delta1,
+  tterm,
+  eterm,
+  stopT,
+  stopE,
+  w1,
+  w2,
+  plow.ast,
+  pupp.ast,
+  qlow.ast,
+  qupp.ast,
+  psi00,
+  psi11
 )
 }
 \arguments{
-\item{probt}{Estimated toxicity probability (default: c(0.1,0.2,0.4))}
+\item{probt}{Estimated toxicity probability.}
 
-\item{probe}{Estimated efficacy probability (default: c(0.2,0.6,0.6))}
+\item{probe}{Estimated efficacy probability.}
 
-\item{method}{Method used for OBD selection}
+\item{method}{Method used for OBD selection.}
 
-\item{phi}{Target toxicity probability (default: 0.33)}
+\item{phi}{Target toxicity probability.}
 
-\item{phi1}{Lower bound of toxicity probability (default: 0.033)}
+\item{phi1}{Lower bound of toxicity probability.}
 
-\item{phi2}{Upper bound of toxicity probability (default: 0.462)}
+\item{phi2}{Upper bound of toxicity probability.}
 
-\item{delta}{Target efficacy probability (default: 0.70)}
+\item{delta}{Target efficacy probability.}
 
-\item{delta1}{Lower bound of efficacy probability (default: 0.42)}
+\item{delta1}{Lower bound of efficacy probability.}
 
-\item{tterm}{Probability of meeting toxicity stopping criteria (default: c(0.5,0.5,0.5))}
+\item{tterm}{Probability of meeting toxicity stopping criteria.}
 
-\item{eterm}{Probability of meeting efficacy stopping criteria (default: c(0.5,0.5,0.5))}
+\item{eterm}{Probability of meeting efficacy stopping criteria.}
 
-\item{stopT}{Toxicity stopping criteria (default: 0.95)}
+\item{stopT}{Toxicity stopping criteria.}
 
-\item{stopE}{Efficacy stopping criteria (default: 0.95)}
+\item{stopE}{Efficacy stopping criteria.}
 
-\item{w1}{Weight for toxicity-efficacy trade-off (default: 0.33)}
+\item{w1}{Weight for toxicity-efficacy trade-off.}
 
-\item{w2}{Weight for penalty imposed on toxic doses (default: 1.09)}
+\item{w2}{Weight for penalty imposed on toxic doses.}
 
-\item{tox.upper}{Upper bound of toxicity probability (default: 0.462)}
+\item{plow.ast}{Lower threshold of toxicity linear truncated function.}
 
-\item{psi00}{Score for toxicity=no and efficacy=no (default: 40)}
+\item{pupp.ast}{Upper threshold of toxicity linear truncated function.}
 
-\item{psi11}{Score for toxicity=yes and efficacy=yes (default: 60)}
+\item{qlow.ast}{Lower threshold of efficacy linear truncated function.}
+
+\item{qupp.ast}{Upper threshold of efficacy linear truncated function.}
+
+\item{psi00}{Score for toxicity=no and efficacy=no.}
+
+\item{psi11}{Score for toxicity=yes and efficacy=yes.}
 }
 \value{
-OBD
+Optimal biological dose
 }
 \description{
 Optimal biological dose (OBD) is selected based on a method specified.
-}
-\examples{
-obd.select(method="max.effprob");
 }

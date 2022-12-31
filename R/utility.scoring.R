@@ -3,17 +3,14 @@
 #'
 #' Given estimated toxicity and efficacy probabilities, the utility which is
 #' defined by scoring is calculated.
-#' @param probt Estimated toxicity probability
-#' @param probe Estimated efficacy probability
-#' @param psi00 Score for toxicity=no and efficacy=no (default: 40)
-#' @param psi11 Score for toxicity=yes and efficacy=yes (default: 60)
+#' @param probt Estimated toxicity probability.
+#' @param probe Estimated efficacy probability.
+#' @param psi00 Score for toxicity=no and efficacy=no.
+#' @param psi11 Score for toxicity=yes and efficacy=yes.
 #' @return Utility value
-#' @examples
-#' utility.scoring(probt=c(0.1,0.2,0.4),probe=c(0.2,0.6,0.6));
 #' @export
 
-utility.scoring <- function(probt,probe,
-                            psi00=40,psi11=60)
+utility.scoring <- function(probt,probe,psi00,psi11)
 {
   psi.e0t1 <- 0
   psi.e0t0 <- psi00

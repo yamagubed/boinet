@@ -4,16 +4,16 @@
 \alias{utility.scoring}
 \title{Utility defined by scoring}
 \usage{
-utility.scoring(probt, probe, psi00 = 40, psi11 = 60)
+utility.scoring(probt, probe, psi00, psi11)
 }
 \arguments{
-\item{probt}{Estimated toxicity probability}
+\item{probt}{Estimated toxicity probability.}
 
-\item{probe}{Estimated efficacy probability}
+\item{probe}{Estimated efficacy probability.}
 
-\item{psi00}{Score for toxicity=no and efficacy=no (default: 40)}
+\item{psi00}{Score for toxicity=no and efficacy=no.}
 
-\item{psi11}{Score for toxicity=yes and efficacy=yes (default: 60)}
+\item{psi11}{Score for toxicity=yes and efficacy=yes.}
 }
 \value{
 Utility value
@@ -21,7 +21,4 @@ Utility value
 \description{
 Given estimated toxicity and efficacy probabilities, the utility which is
 defined by scoring is calculated.
-}
-\examples{
-utility.scoring(probt=c(0.1,0.2,0.4),probe=c(0.2,0.6,0.6));
 }
