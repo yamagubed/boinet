@@ -1,12 +1,12 @@
 Package: boinet
 Version: 0.0.1
-Title: boinet: Conduct Simulation Study of Bayesian Optimal Interval Design with BOIN-ET Family
+Title: Conduct Simulation Study of Bayesian Optimal Interval Design with BOIN-ET Family
 Authors@R: 
     person(given  = "Yusuke",
            family = "Yamaguchi",
            role   = c("aut","cre"),
            email  = "yamagubed@gmail.com")
-Description: What the package does (one paragraph).
+Description: BOIN-ET, gBOINT-ET, TITE-BOIN-ET, and TITE-gBOIN-ET is implemented under a scenario specified.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

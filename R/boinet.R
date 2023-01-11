@@ -20,7 +20,7 @@
 #'   w1= 0.33, w2=1.09,
 #'   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
 #'   psi00=40, psi11=60,
-#'   n.sim=1000, seed.sim=66)
+#'   n.sim=1000, seed.sim=NULL)
 #' @param n.dose Number of dose.
 #' @param start.dose Starting dose. The lowest dose is generally recommended.
 #' @param size.cohort Cohort size.
@@ -108,7 +108,7 @@
 #' @param n.sim Number of simulated trial. The default value is
 #' \code{n.sim=1000}.
 #' @param seed.sim Seed for random number generator. The default value is
-#' \code{seed.sim=66}.
+#' \code{seed.sim=NULL}.
 #' @details The \code{boinet} is a function which generates the operating
 #' characteristics of the Bayesian Optimal Interval design based on toxicity
 #' and efficacy (BOIN-ET design) by a simulation study. Users can specify a
@@ -168,7 +168,7 @@
 #' estpt.method <- "obs.prob"
 #' obd.method   <- "max.effprob"
 #'
-#' n.sim <- 100
+#' n.sim <- 10
 #'
 #' boinet(
 #'   n.dose=n.dose, start.dose=start.dose,
@@ -195,7 +195,7 @@ boinet <- function(
             w1= 0.33, w2=1.09,
             plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
             psi00=40, psi11=60,
-            n.sim=1000, seed.sim=66)
+            n.sim=1000, seed.sim=NULL)
 {
   if(length(toxprob)!=n.dose){
     stop("Number of dose must be the same as the length of true toxicity probability.")

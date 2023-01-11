@@ -22,7 +22,7 @@
 #'   w1=0.33, w2=1.09,
 #'   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
 #'   psi00=40, psi11=60,
-#'   n.sim=1000, seed.sim=66)
+#'   n.sim=1000, seed.sim=NULL)
 #' @param n.dose Number of dose.
 #' @param start.dose Starting dose. The lowest dose is generally recommended.
 #' @param size.cohort Cohort size.
@@ -112,7 +112,7 @@
 #' @param n.sim Number of simulated trial. The default value is
 #' \code{n.sim=1000}.
 #' @param seed.sim Seed for random number generator. The default value is
-#' \code{seed.sim=66}.
+#' \code{seed.sim=NULL}.
 #' @details The \code{tite.gboinet} is a function which generates the operating
 #' characteristics of the time-to-event generalized Bayesian optimal interval
 #' design to accelerate dose-finding accounting for ordinal graded efficacy and
@@ -186,7 +186,7 @@
 #' estpt.method <- "obs.prob"
 #' obd.method   <- "max.effprob"
 #'
-#' n.sim <- 100
+#' n.sim <- 10
 #'
 #' tite.gboinet(
 #'   n.dose=n.dose, start.dose=start.dose,
@@ -215,7 +215,7 @@ tite.gboinet <- function(
                   w1=0.33, w2=1.09,
                   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
                   psi00=40, psi11=60,
-                  n.sim=1000, seed.sim=66)
+                  n.sim=1000, seed.sim=NULL)
 {
   if(ncol(toxprob)!=n.dose){
     stop("Number of dose must be the same as the length of true toxicity probability.")
@@ -234,6 +234,9 @@ tite.gboinet <- function(
 
   }else if(!(delta1<delta)){
     stop("Design parameters must satisfy a condition of delta1 < delta.")
+
+  }else if((!is.matrix(toxprob))|(!is.matrix(effprob))){
+    stop("True toxicity and efficacy probability must be specified as matrix.")
 
   }else{
 

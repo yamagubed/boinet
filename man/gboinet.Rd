@@ -17,7 +17,7 @@ gboinet(
   w1=0.33, w2=1.09,
   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
   psi00=40, psi11=60,
-  n.sim=1000, seed.sim=66)
+  n.sim=1000, seed.sim=NULL)
 }
 \arguments{
 \item{n.dose}{Number of dose.}
@@ -144,7 +144,7 @@ The default value is \code{psi11=60}.}
 \code{n.sim=1000}.}
 
 \item{seed.sim}{Seed for random number generator. The default value is
-\code{seed.sim=66}.}
+\code{seed.sim=NULL}.}
 }
 \value{
 The \code{gboinet} returns a list containing the following components:
@@ -219,7 +219,7 @@ accrual <- 10
 estpt.method <- "obs.prob"
 obd.method   <- "max.effprob"
 
-n.sim <- 100
+n.sim <- 10
 
 gboinet(
   n.dose=n.dose, start.dose=start.dose,
