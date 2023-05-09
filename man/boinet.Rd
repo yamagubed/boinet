@@ -7,17 +7,17 @@
 boinet(
   n.dose, start.dose, size.cohort, n.cohort,
   toxprob, effprob,
-  phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+  phi=0.3, phi1=phi*0.1, phi2=phi*1.4, delta=0.6, delta1=delta*0.6,
   alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
   te.corr=0.2, gen.event.time="weibull",
   accrual, gen.enroll.time="uniform",
   stopping.npts=size.cohort*n.cohort,
-  stopping.prob.T=0.95, stopping.prob.E=0.95,
+  stopping.prob.T=0.95, stopping.prob.E=0.99,
   estpt.method, obd.method,
   w1= 0.33, w2=1.09,
   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
   psi00=40, psi11=60,
-  n.sim=1000, seed.sim=NULL)
+  n.sim=1000, seed.sim=100)
 }
 \arguments{
 \item{n.dose}{Number of dose.}
@@ -32,7 +32,8 @@ boinet(
 
 \item{effprob}{Vector of true efficacy probability.}
 
-\item{phi}{Target toxicity probability.}
+\item{phi}{Target toxicity probability. The default value is
+\code{phi=0.3}.}
 
 \item{phi1}{Highest toxicity probability that is deemed sub-therapeutic such
 that dose-escalation should be pursued. The default value is
@@ -41,7 +42,8 @@ that dose-escalation should be pursued. The default value is
 \item{phi2}{Lowest toxicity probability that is deemed overly toxic such that
 dose de-escalation is needed. The default value is \code{phi2=phi*1.4}.}
 
-\item{delta}{Target efficacy probability.}
+\item{delta}{Target efficacy probability. The default value is
+\code{delta=0.6}.}
 
 \item{delta1}{Minimum probability deemed efficacious such that the dose
 levels with less than delta1 are considered sub-therapeutic.
@@ -89,7 +91,7 @@ value is \code{stopping.prob.T=0.95}.}
 taking a value between 0 and 1. If the posterior probability that efficacy
 outcome is less than the minimum efficacy probability (delta1) is larger
 then this criteria, the dose levels are eliminated from the study.
-The default value is \code{stopping.prob.E=0.95}.}
+The default value is \code{stopping.prob.E=0.99}.}
 
 \item{estpt.method}{Method to estimate the efficacy probability. Fractional
 polynomial logistic regression is used when \code{estpt.method="fp.logistic"}.
@@ -140,7 +142,7 @@ The default value is \code{psi11=60}.}
 \code{n.sim=1000}.}
 
 \item{seed.sim}{Seed for random number generator. The default value is
-\code{seed.sim=NULL}.}
+\code{seed.sim=100}.}
 }
 \value{
 The \code{boinet} returns a list containing the following components:
@@ -221,5 +223,5 @@ and toxicity outcomes. \emph{Pharmaceutical Statistics} 2018; 17(4):383-395.
 Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
 Optimal biological dose selection in dose-finding trials with
 model-assisted designs based on efficacy and toxicity: a simulation study.
-submitted.
+\emph{Journal of Biopharmaceutical Statistics} 2023; doi: 10.1080/10543406.2023.2202259.
 }

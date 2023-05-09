@@ -11,30 +11,32 @@
 #' tite.boinet(
 #'   n.dose, start.dose, size.cohort, n.cohort,
 #'   toxprob, effprob,
-#'   phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+#'   phi=0.3, phi1=phi*0.1, phi2=phi*1.4, delta=0.6, delta1=delta*0.6,
 #'   alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
 #'   te.corr=0.2, gen.event.time="weibull",
 #'   accrual, gen.enroll.time="uniform",
 #'   stopping.npts=size.cohort*n.cohort,
-#'   stopping.prob.T=0.95, stopping.prob.E=0.95,
+#'   stopping.prob.T=0.95, stopping.prob.E=0.99,
 #'   estpt.method, obd.method,
 #'   w1= 0.33, w2=1.09,
 #'   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
 #'   psi00=40, psi11=60,
-#'   n.sim=1000, seed.sim=NULL)
+#'   n.sim=1000, seed.sim=100)
 #' @param n.dose Number of dose.
 #' @param start.dose Starting dose. The lowest dose is generally recommended.
 #' @param size.cohort Cohort size.
 #' @param n.cohort Number of cohort.
 #' @param toxprob Vector of true toxicity probability.
 #' @param effprob Vector of true efficacy probability.
-#' @param phi Target toxicity probability.
+#' @param phi Target toxicity probability. The default value is
+#' \code{phi=0.3}.
 #' @param phi1 Highest toxicity probability that is deemed sub-therapeutic such
 #' that dose-escalation should be pursued. The default value is
 #' \code{phi1=phi*0.1}.
 #' @param phi2 Lowest toxicity probability that is deemed overly toxic such that
 #' dose de-escalation is needed. The default value is \code{phi2=phi*1.4}.
-#' @param delta Target efficacy probability.
+#' @param delta Target efficacy probability. The default value is
+#' \code{delta=0.6}.
 #' @param delta1 Minimum probability deemed efficacious such that the dose
 #' levels with less than delta1 are considered sub-therapeutic.
 #' The default value is \code{delta1=delta*0.6}.
@@ -70,7 +72,7 @@
 #' taking a value between 0 and 1. If the posterior probability that efficacy
 #' outcome is less than the minimum efficacy probability (delta1) is larger
 #' then this criteria, the dose levels are eliminated from the study.
-#' The default value is \code{stopping.prob.E=0.95}.
+#' The default value is \code{stopping.prob.E=0.99}.
 #' @param estpt.method Method to estimate the efficacy probability. Fractional
 #' polynomial logistic regression is used when \code{estpt.method="fp.logistic"}.
 #' Model averaging of multiple unimodal isotopic regression is used when
@@ -109,7 +111,7 @@
 #' @param n.sim Number of simulated trial. The default value is
 #' \code{n.sim=1000}.
 #' @param seed.sim Seed for random number generator. The default value is
-#' \code{seed.sim=NULL}.
+#' \code{seed.sim=100}.
 #' @details The \code{tite.boinet} is a function which generates the operating
 #' characteristics of the time-to-event Bayesian optimal interval design to
 #' accelerate dose-finding based on both efficacy and toxicity outcomes
@@ -151,7 +153,7 @@
 #' Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
 #' Optimal biological dose selection in dose-finding trials with
 #' model-assisted designs based on efficacy and toxicity: a simulation study.
-#' submitted.
+#' *Journal of Biopharmaceutical Statistics* 2023; doi: 10.1080/10543406.2023.2202259.
 #' @examples
 #' n.dose      <- 6
 #' start.dose  <- 1
@@ -188,17 +190,17 @@
 tite.boinet <- function(
                  n.dose, start.dose, size.cohort, n.cohort,
                  toxprob, effprob,
-                 phi, phi1=phi*0.1, phi2=phi*1.4, delta, delta1=delta*0.6,
+                 phi=0.3, phi1=phi*0.1, phi2=phi*1.4, delta=0.6, delta1=delta*0.6,
                  alpha.T1=0.5, alpha.E1=0.5, tau.T, tau.E,
                  te.corr=0.2, gen.event.time="weibull",
                  accrual, gen.enroll.time="uniform",
                  stopping.npts=size.cohort*n.cohort,
-                 stopping.prob.T=0.95, stopping.prob.E=0.95,
+                 stopping.prob.T=0.95, stopping.prob.E=0.99,
                  estpt.method, obd.method,
                  w1= 0.33, w2=1.09,
                  plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
                  psi00=40, psi11=60,
-                 n.sim=1000, seed.sim=NULL)
+                 n.sim=1000, seed.sim=100)
 {
   if(length(toxprob)!=n.dose){
     stop("Number of dose must be the same as the length of true toxicity probability.")

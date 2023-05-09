@@ -12,12 +12,12 @@ gboinet(
   te.corr=0.2, gen.event.time="weibull",
   accrual, gen.enroll.time="uniform",
   stopping.npts=size.cohort*n.cohort,
-  stopping.prob.T=0.95, stopping.prob.E=0.95,
+  stopping.prob.T=0.95, stopping.prob.E=0.99,
   estpt.method, obd.method,
   w1=0.33, w2=1.09,
   plow.ast=phi1, pupp.ast=phi2, qlow.ast=delta1/2, qupp.ast=delta,
   psi00=40, psi11=60,
-  n.sim=1000, seed.sim=NULL)
+  n.sim=1000, seed.sim=100)
 }
 \arguments{
 \item{n.dose}{Number of dose.}
@@ -93,7 +93,7 @@ value is \code{stopping.prob.T=0.95}.}
 taking a value between 0 and 1. If the posterior probability that efficacy
 outcome is less than the minimum efficacy probability (delta1) is larger
 then this criteria, the dose levels are eliminated from the study.
-The default value is \code{stopping.prob.E=0.95}.}
+The default value is \code{stopping.prob.E=0.99}.}
 
 \item{estpt.method}{Method to estimate the efficacy probability. Fractional
 polynomial logistic regression is used when \code{estpt.method="fp.logistic"}.
@@ -144,7 +144,7 @@ The default value is \code{psi11=60}.}
 \code{n.sim=1000}.}
 
 \item{seed.sim}{Seed for random number generator. The default value is
-\code{seed.sim=NULL}.}
+\code{seed.sim=100}.}
 }
 \value{
 The \code{gboinet} returns a list containing the following components:
@@ -240,5 +240,5 @@ ordinal graded efficacy and toxicity in early clinical trials.
 Yusuke Yamaguchi, Kentaro Takeda, Satoshi Yoshida and Kazushi Maruo.
 Optimal biological dose selection in dose-finding trials with
 model-assisted designs based on efficacy and toxicity: a simulation study.
-submitted.
+\emph{Journal of Biopharmaceutical Statistics} 2023; doi: 10.1080/10543406.2023.2202259.
 }
