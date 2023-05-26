@@ -7,10 +7,17 @@
 \method{print}{tite.boinet}(x, ...)
 }
 \arguments{
-\item{x}{Object from tite.boinet}
+\item{x}{Object from \code{tite.boinet}.}
 
-\item{...}{Other parameters}
+\item{...}{More options to pass to print.}
+}
+\value{
+No return values. Key summary results from \code{tite.boinet} are displayed with
+trial design settings.
 }
 \description{
-tite.boinet results are printed.
+Display key summary results from \code{tite.boinet}.
+}
+\seealso{
+\code{\link{tite.boinet}}
 }

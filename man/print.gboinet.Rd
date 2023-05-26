@@ -7,10 +7,17 @@
 \method{print}{gboinet}(x, ...)
 }
 \arguments{
-\item{x}{Object from gboinet}
+\item{x}{Object from \code{gboinet}.}
 
-\item{...}{Other parameters}
+\item{...}{More options to pass to print.}
+}
+\value{
+No return values. Key summary results from \code{gboinet} are displayed with
+trial design settings.
 }
 \description{
-gboinet results are printed.
+Display key summary results from \code{gboinet}.
+}
+\seealso{
+\code{\link{gboinet}}
 }

@@ -1,10 +1,14 @@
 
 #' Print tite.gboinet
 #'
-#' tite.gboinet results are printed.
-#' @param x Object from tite.gboinet
-#' @param ... Other parameters
+#' Display key summary results from \code{tite.gboinet}.
+#' @param x Object from \code{tite.gboinet}.
+#' @param ... More options to pass to print.
 #' @rdname print.tite.gboinet
+#' @return
+#' No return values. Key summary results from \code{tite.gboinet} are displayed with
+#' trial design settings.
+#' @seealso \code{\link{tite.gboinet}}
 #' @export
 
 print.tite.gboinet <- function(x,...)

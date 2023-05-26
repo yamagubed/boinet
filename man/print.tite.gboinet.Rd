@@ -7,10 +7,17 @@
 \method{print}{tite.gboinet}(x, ...)
 }
 \arguments{
-\item{x}{Object from tite.gboinet}
+\item{x}{Object from \code{tite.gboinet}.}
 
-\item{...}{Other parameters}
+\item{...}{More options to pass to print.}
+}
+\value{
+No return values. Key summary results from \code{tite.gboinet} are displayed with
+trial design settings.
 }
 \description{
-tite.gboinet results are printed.
+Display key summary results from \code{tite.gboinet}.
+}
+\seealso{
+\code{\link{tite.gboinet}}
 }

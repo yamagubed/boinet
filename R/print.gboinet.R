@@ -1,10 +1,14 @@
 
 #' Print gboinet
 #'
-#' gboinet results are printed.
-#' @param x Object from gboinet
-#' @param ... Other parameters
+#' Display key summary results from \code{gboinet}.
+#' @param x Object from \code{gboinet}.
+#' @param ... More options to pass to print.
 #' @rdname print.gboinet
+#' @return
+#' No return values. Key summary results from \code{gboinet} are displayed with
+#' trial design settings.
+#' @seealso \code{\link{gboinet}}
 #' @export
 
 print.gboinet <- function(x,...)

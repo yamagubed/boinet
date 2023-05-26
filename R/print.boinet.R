@@ -1,10 +1,14 @@
 
 #' Print boinet
 #'
-#' boinet results are printed.
-#' @param x Object from boinet
-#' @param ... Other parameters
+#' Display key summary results from \code{boinet}.
+#' @param x Object from \code{boinet}.
+#' @param ... More options to pass to print.
 #' @rdname print.boinet
+#' @return
+#' No return values. Key summary results from \code{boinet} are displayed with
+#' trial design settings.
+#' @seealso \code{\link{boinet}}
 #' @export
 
 print.boinet <- function(x,...)

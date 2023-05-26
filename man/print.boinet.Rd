@@ -7,10 +7,17 @@
 \method{print}{boinet}(x, ...)
 }
 \arguments{
-\item{x}{Object from boinet}
+\item{x}{Object from \code{boinet}.}
 
-\item{...}{Other parameters}
+\item{...}{More options to pass to print.}
+}
+\value{
+No return values. Key summary results from \code{boinet} are displayed with
+trial design settings.
 }
 \description{
-boinet results are printed.
+Display key summary results from \code{boinet}.
+}
+\seealso{
+\code{\link{boinet}}
 }
