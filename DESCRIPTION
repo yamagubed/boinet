@@ -1,5 +1,5 @@
 Package: boinet
-Version: 1.1.0
+Version: 1.2.0
 Title: Conduct Simulation Study of Bayesian Optimal Interval Design with BOIN-ET Family
 Authors@R: c(
     person(given  = "Yusuke",
@@ -13,11 +13,19 @@ Description: Bayesian optimal interval based on both efficacy and toxicity outco
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
+Depends: R (>= 4.1.0)
 Imports:
     Iso,
     mfp,
-    copula
+    copula,
+    gt,
+    tibble
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    dplyr (>= 1.0.0),
+    ggplot2,
+VignetteBuilder: knitr
 Config/testthat/edition: 3
