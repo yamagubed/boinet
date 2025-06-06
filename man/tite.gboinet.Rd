@@ -307,7 +307,7 @@ results_cart <- tite.gboinet(
   estpt.method = "obs.prob",
   obd.method = "utility.weighted",
   w1 = 0.5, w2 = 1.5,  # Balance with strong toxicity penalty
-  n.sim = 70
+  n.sim = 40
 )
 
 # Display normalized equivalent scores
@@ -362,7 +362,7 @@ results_immuno <- tite.gboinet(
   tau.T = tau.T, tau.E = tau.E, accrual = accrual,
   estpt.method = "fp.logistic",  # Smooth dose-response
   obd.method = "utility.truncated.linear",
-  n.sim = 70
+  n.sim = 40
 )
 
 # Display normalized equivalent scores

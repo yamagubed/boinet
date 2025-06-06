@@ -245,7 +245,7 @@
 #'   estpt.method = "obs.prob",  # Conservative for small sample
 #'   obd.method = "utility.weighted",
 #'   w1 = 0.4, w2 = 1.2,  # Balanced approach with toxicity penalty
-#'   n.sim = 70
+#'   n.sim = 40
 #' )
 #'
 #' cat("Expected trial duration:", results_cart$duration, "days\\n")
@@ -288,7 +288,7 @@
 #'   gen.enroll.time = "exponential",  # Variable enrollment
 #'   estpt.method = "fp.logistic",  # Smooth modeling
 #'   obd.method = "max.effprob",
-#'   n.sim = 70
+#'   n.sim = 40
 #' )
 #'
 #' # Compare duration to standard BOIN-ET (hypothetical)
