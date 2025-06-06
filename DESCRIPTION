@@ -1,5 +1,5 @@
 Package: boinet
-Version: 1.2.0
+Version: 1.3.0
 Title: Conduct Simulation Study of Bayesian Optimal Interval Design with BOIN-ET Family
 Authors@R: c(
     person(given  = "Yusuke",
